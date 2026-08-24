@@ -52,3 +52,5 @@ _test-screens/
 /.claude/
 /.windsurf/
 skills-lock.json
+
+.vercel
