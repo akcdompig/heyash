@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+/*
+  Even Kletsen design tokens.
+  Warm, human, unhurried — the opposite of a SaaS dashboard or an AI chat UI.
+  Terracotta/coral as the primary voice, cream paper backgrounds, a soft sage
+  for calm/secondary moments, and amber (never red) for the timer warnings.
+*/
+:root {
+  --background: #fbf6ef;
+  --surface: #ffffff;
+  --surface-tint: #fcede1;
+  --foreground: #2b2420;
+  --muted: #8c8175;
+  --border: #e8dfd3;
+
+  --primary: #e2643a;
+  --primary-hover: #c94f28;
+  --primary-foreground: #fffaf5;
+
+  --secondary: #7a8b6f;
+  --secondary-hover: #647459;
+  --secondary-foreground: #fffaf5;
+
+  --accent: #f0855f;
+
+  --warning: #e0a845;
+  --warning-strong: #d9722f;
+  --danger: #c94f4f;
+
+  --radius-sm: 0.6rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-xl: 2rem;
+
+  --shadow-soft: 0 4px 24px -8px rgba(43, 36, 32, 0.12);
+  --shadow-lift: 0 12px 40px -12px rgba(43, 36, 32, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #1e1812;
+    --surface: #2a2219;
+    --surface-tint: #33281d;
+    --foreground: #f5eee4;
+    --muted: #a89a89;
+    --border: #3d332a;
+
+    --primary: #f0855f;
+    --primary-hover: #f5a17f;
+    --primary-foreground: #241a12;
+
+    --secondary: #9ab08c;
+    --secondary-hover: #aebf9f;
+    --secondary-foreground: #1c2318;
+
+    --accent: #f0855f;
+
+    --warning: #e6b95a;
+    --warning-strong: #e08a4a;
+    --danger: #e08080;
+
+    --shadow-soft: 0 4px 24px -8px rgba(0, 0, 0, 0.35);
+    --shadow-lift: 0 12px 40px -12px rgba(0, 0, 0, 0.45);
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-tint: var(--surface-tint);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-accent: var(--accent);
+  --color-warning: var(--warning);
+  --color-warning-strong: var(--warning-strong);
+  --color-danger: var(--danger);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-jakarta);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+}
+
+::selection {
+  background: color-mix(in oklch, var(--color-primary) 30%, transparent);
+}

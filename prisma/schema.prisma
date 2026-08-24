@@ -1,0 +1,258 @@
+// Even Kletsen — data model.
+//
+// Uses the classic "prisma-client-js" generator (not the newer "prisma-client"
+// TS generator) because @auth/prisma-adapter's types still hard-import
+// `PrismaClient` from the "@prisma/client" package path, which only the
+// classic generator populates.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  OPERATOR
+  ADMIN
+}
+
+enum SessionStatus {
+  WAITING
+  ACTIVE
+  GRACE
+  ENDED
+  ABANDONED
+}
+
+enum TxType {
+  PURCHASE
+  USAGE
+  REFUND
+  FREE_INTRO
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+}
+
+enum ReportStatus {
+  OPEN
+  REVIEWED
+  ACTIONED
+  DISMISSED
+}
+
+// --- Auth.js (NextAuth) models -------------------------------------------
+// Standard shape expected by @auth/prisma-adapter. Session strategy is
+// database-backed (required for the Email/magic-link provider, and gives us
+// server-side session revocation for free).
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// --- Core domain -----------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(USER)
+
+  // Denormalized cache of the CreditTransaction ledger, kept in sync inside
+  // every ledger-writing transaction. CHECK (creditBalance >= 0) is added via
+  // raw SQL in a migration — Prisma's schema DSL has no table-level CHECK.
+  creditBalance    Int       @default(0)
+  hasUsedFreeIntro Boolean   @default(false)
+  ageConfirmedAt   DateTime?
+
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  accounts        Account[]
+  authSessions    Session[]
+  operatorProfile OperatorProfile?
+
+  transactions CreditTransaction[]
+  payments     Payment[]
+
+  conversationsAsUser     ConversationSession[] @relation("UserConversations")
+  conversationsAsOperator ConversationSession[] @relation("OperatorConversations")
+
+  reportsFiled    SafetyReport[] @relation("ReportsFiledByOperator")
+  reportsReceived SafetyReport[] @relation("ReportsAgainstUser")
+  blocksReceived  Block[]        @relation("BlocksAgainstUser")
+  blocksIssued    Block[]        @relation("BlocksIssuedByOperator")
+}
+
+model OperatorProfile {
+  id          String  @id @default(cuid())
+  userId      String  @unique
+  displayName String  @default("Ashley")
+  bio         String?
+  avatarUrl   String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CreditTransaction {
+  id             String   @id @default(cuid())
+  userId         String
+  type           TxType
+  amountMinutes  Int // signed: positive for purchase/refund/free_intro, negative for usage
+  idempotencyKey String   @unique
+  paymentId      String?
+  sessionId      String?
+  createdAt      DateTime @default(now())
+
+  user    User                 @relation(fields: [userId], references: [id])
+  payment Payment?             @relation(fields: [paymentId], references: [id])
+  session ConversationSession? @relation(fields: [sessionId], references: [id])
+
+  @@index([userId, createdAt])
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  userId            String
+  packageCode       String
+  amountCents       Int
+  provider          String
+  providerPaymentId String        @unique
+  status            PaymentStatus @default(PENDING)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  user         User                @relation(fields: [userId], references: [id])
+  transactions CreditTransaction[]
+
+  @@index([userId, createdAt])
+}
+
+// Dedupe log for inbound provider webhooks — every delivery is inserted here
+// with ON CONFLICT DO NOTHING before any Payment/CreditTransaction is touched,
+// so duplicate/replayed webhook deliveries can never double-credit a user.
+model PaymentWebhookEvent {
+  id              String   @id @default(cuid())
+  provider        String
+  providerEventId String
+  payload         Json
+  receivedAt      DateTime @default(now())
+
+  @@unique([provider, providerEventId])
+}
+
+model ConversationSession {
+  id          String        @id @default(cuid())
+  userId      String
+  operatorId  String?
+  status      SessionStatus @default(WAITING)
+  isFreeIntro Boolean       @default(false)
+
+  requestedAt    DateTime  @default(now())
+  startedAt      DateTime?
+  endsAt         DateTime?
+  minutesDebited Int       @default(0)
+  warned5MinAt   DateTime?
+  warned1MinAt   DateTime?
+  endedAt        DateTime?
+  endReason      String?
+
+  user     User  @relation("UserConversations", fields: [userId], references: [id])
+  operator User? @relation("OperatorConversations", fields: [operatorId], references: [id])
+
+  messages           Message[]
+  creditTransactions CreditTransaction[]
+  safetyReports      SafetyReport[]
+  // Enforced via raw SQL in a migration (partial unique index — Prisma's
+  // schema DSL can't express a WHERE clause on a unique index):
+  //   CREATE UNIQUE INDEX one_active_session_per_user
+  //     ON "ConversationSession"("userId")
+  //     WHERE status IN ('WAITING', 'ACTIVE', 'GRACE');
+
+  @@index([userId, status])
+  @@index([operatorId, status])
+}
+
+model Message {
+  id         String    @id @default(cuid())
+  sessionId  String
+  senderRole Role
+  body       String?
+  createdAt  DateTime  @default(now())
+  redactedAt DateTime?
+
+  session ConversationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}
+
+model SafetyReport {
+  id             String       @id @default(cuid())
+  sessionId      String
+  reportedById   String // operator who filed the report
+  reportedUserId String
+  category       String // harassment | sexual | inappropriate | threats | contact_request | money_request | suspicious | other
+  description    String?
+  status         ReportStatus @default(OPEN)
+  createdAt      DateTime     @default(now())
+
+  session      ConversationSession @relation(fields: [sessionId], references: [id])
+  reportedBy   User                @relation("ReportsFiledByOperator", fields: [reportedById], references: [id])
+  reportedUser User                @relation("ReportsAgainstUser", fields: [reportedUserId], references: [id])
+
+  @@index([reportedUserId])
+  @@index([status])
+}
+
+model Block {
+  id              String    @id @default(cuid())
+  userId          String
+  blockedByUserId String
+  reason          String?
+  createdAt       DateTime  @default(now())
+  liftedAt        DateTime?
+
+  user          User @relation("BlocksAgainstUser", fields: [userId], references: [id])
+  blockedByUser User @relation("BlocksIssuedByOperator", fields: [blockedByUserId], references: [id])
+
+  @@index([userId])
+}
