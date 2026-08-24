@@ -10,6 +10,13 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Prisma CLI commands (migrate deploy, generate, seed) use this URL.
+    // In production against Supabase, DATABASE_URL is the pooled/Supavisor
+    // connection (required for serverless runtime), which Prisma Migrate
+    // doesn't run reliably through — so migrations use DIRECT_URL (Supabase's
+    // direct, non-pooled connection) when it's set. Locally, DIRECT_URL is
+    // never set, so this falls back to DATABASE_URL exactly as before —
+    // local dev is unaffected.
+    url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
   },
 });
