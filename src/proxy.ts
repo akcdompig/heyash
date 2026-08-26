@@ -7,7 +7,7 @@ import type { NextRequest } from "next/server";
 // database here (that would need the Node Postgres driver adapter, which
 // doesn't belong in Proxy) — the real, verified check lives in
 // `lib/auth/dal.ts` and runs again on every protected page/action/route.
-const PROTECTED_PREFIXES = ["/account", "/chat", "/buy", "/dashboard"];
+const PROTECTED_PREFIXES = ["/account", "/chat", "/buy", "/dashboard", "/verder"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

@@ -4,7 +4,7 @@ import { signInWithEmail } from "@/lib/actions/auth";
 
 export default async function LoginPage({ searchParams }: PageProps<"/inloggen">) {
   const sp = await searchParams;
-  const next = typeof sp.next === "string" ? sp.next : "/chat";
+  const next = typeof sp.next === "string" ? sp.next : "/verder";
 
   return (
     <Card className="w-full max-w-sm">
