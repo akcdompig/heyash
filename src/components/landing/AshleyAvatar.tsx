@@ -1,19 +1,19 @@
+import Image from "next/image";
+
 export function AshleyAvatar({ size = 96 }: { size?: number }) {
   return (
     <div
-      className="relative shrink-0 rounded-full"
-      style={{
-        width: size,
-        height: size,
-        background: "linear-gradient(150deg, var(--color-accent), var(--color-primary))",
-      }}
+      className="relative shrink-0 overflow-hidden rounded-full ring-2 ring-surface"
+      style={{ width: size, height: size }}
     >
-      <span
-        className="absolute inset-0 flex items-center justify-center font-display text-primary-foreground"
-        style={{ fontSize: size * 0.4 }}
-      >
-        A
-      </span>
+      <Image
+        src="/ashley/ashley-cozy.jpg"
+        alt="Ashley"
+        fill
+        sizes={`${size}px`}
+        className="object-cover"
+        style={{ objectPosition: "50% 22%" }}
+      />
     </div>
   );
 }

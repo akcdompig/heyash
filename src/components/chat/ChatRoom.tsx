@@ -8,6 +8,7 @@ import { TimerBadge } from "@/components/chat/TimerBadge";
 import { TimeWarningBanner } from "@/components/chat/TimeWarningBanner";
 import { WaitingRoom } from "@/components/chat/WaitingRoom";
 import { EndOfTimeCard } from "@/components/chat/EndOfTimeCard";
+import { AshleyAvatar } from "@/components/landing/AshleyAvatar";
 import type { SessionStatus } from "@prisma/client";
 
 interface ChatRoomProps {
@@ -64,9 +65,12 @@ export function ChatRoom({
   return (
     <div className="flex flex-1 flex-col">
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
-        <div>
-          <p className="font-semibold">{headerTitle}</p>
-          {headerSubtitle && <p className="text-xs text-muted">{headerSubtitle}</p>}
+        <div className="flex items-center gap-3">
+          {viewerRole === "USER" && <AshleyAvatar size={36} />}
+          <div>
+            <p className="font-semibold">{headerTitle}</p>
+            {headerSubtitle && <p className="text-xs text-muted">{headerSubtitle}</p>}
+          </div>
         </div>
         <div className="flex items-center gap-3">
           {status === "ACTIVE" && <TimerBadge endsAt={endsAt} />}
