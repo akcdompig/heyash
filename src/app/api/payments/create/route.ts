@@ -18,8 +18,11 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { paymentId, redirectUrl } = await createPendingPayment(user.id, parsed.data.packageCode);
-    return NextResponse.json({ paymentId, redirectUrl });
+    const { paymentId, redirectUrl, opensInNewTab } = await createPendingPayment(
+      user.id,
+      parsed.data.packageCode
+    );
+    return NextResponse.json({ paymentId, redirectUrl, opensInNewTab });
   } catch {
     return NextResponse.json({ error: "Onbekend pakket" }, { status: 400 });
   }

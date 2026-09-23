@@ -1,4 +1,5 @@
 import { PricingTable } from "@/components/landing/PricingTable";
+import { FREE_INTRO_MINUTES } from "@/lib/credits/packages";
 
 export function EndOfTimeCard({
   isFreeIntro,
@@ -22,7 +23,7 @@ export function EndOfTimeCard({
     <div className="flex flex-1 flex-col items-center gap-6 overflow-y-auto px-6 py-12 text-center">
       {isFreeIntro ? (
         <>
-          <h2 className="font-display text-2xl">De 2 minuten zijn voorbij 💛</h2>
+          <h2 className="font-display text-2xl">De {FREE_INTRO_MINUTES} minuten zijn voorbij 💛</h2>
           <p className="max-w-sm text-sm text-muted">Was het fijn om even te praten?</p>
         </>
       ) : (

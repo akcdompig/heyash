@@ -1,5 +1,6 @@
 import "server-only";
 import { mockProvider } from "@/lib/payments/providers/mock";
+import { tikkieProvider } from "@/lib/payments/providers/tikkie";
 import type { PaymentProvider } from "@/lib/payments/provider";
 
 export type { PaymentProvider, CreatePaymentInput, CreatePaymentResult } from "@/lib/payments/provider";
@@ -19,6 +20,10 @@ export function getPaymentProvider(): PaymentProvider {
       );
     }
     return mockProvider;
+  }
+
+  if (configured === "tikkie") {
+    return tikkieProvider;
   }
 
   throw new Error(

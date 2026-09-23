@@ -1,6 +1,7 @@
 import { LinkButton } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { AshleyAvatar } from "@/components/landing/AshleyAvatar";
+import { FREE_INTRO_MINUTES } from "@/lib/credits/packages";
 
 export function Hero() {
   return (
@@ -35,7 +36,7 @@ export function Hero() {
           </LinkButton>
           <div className="flex items-center gap-2">
             <Badge tone="primary">18+</Badge>
-            <Badge tone="secondary">Eerste 2 minuten gratis</Badge>
+            <Badge tone="secondary">Eerste {FREE_INTRO_MINUTES} minuten gratis</Badge>
           </div>
         </div>
       </div>

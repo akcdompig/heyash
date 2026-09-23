@@ -5,7 +5,7 @@ export interface CreditPackage {
   popular?: boolean;
 }
 
-export const FREE_INTRO_MINUTES = 2;
+export const FREE_INTRO_MINUTES = 5;
 
 export const CREDIT_PACKAGES: CreditPackage[] = [
   { code: "5min", minutes: 5, priceCents: 300 },

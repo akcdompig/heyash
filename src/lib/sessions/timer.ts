@@ -58,7 +58,11 @@ async function tickActive(session: ConversationSession): Promise<ConversationSes
     return enterGrace(session, minutesDebited);
   }
 
-  const endsAt = new Date(now.getTime() + balance * 60_000);
+  // Anchored to startedAt + total committed minutes, NOT "now + balance":
+  // using "now" here would push endsAt forward on every heartbeat that
+  // lands inside a not-yet-debited partial minute, making the countdown
+  // visibly jump backward-then-forward instead of ticking down steadily.
+  const endsAt = new Date(startedAt.getTime() + (minutesDebited + balance) * 60_000);
 
   const updates: Parameters<typeof prisma.conversationSession.update>[0]["data"] = {
     minutesDebited,

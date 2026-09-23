@@ -23,7 +23,7 @@ export async function createPendingPayment(userId: string, packageCode: string) 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const returnUrl = `${appUrl}/buy/bedankt?payment=${payment.id}`;
 
-  const { providerPaymentId, redirectUrl } = await paymentProvider.createPayment({
+  const { providerPaymentId, redirectUrl, opensInNewTab } = await paymentProvider.createPayment({
     localPaymentId: payment.id,
     packageCode: pkg.code,
     amountCents: pkg.priceCents,
@@ -35,5 +35,5 @@ export async function createPendingPayment(userId: string, packageCode: string) 
     data: { providerPaymentId },
   });
 
-  return { paymentId: payment.id, redirectUrl };
+  return { paymentId: payment.id, redirectUrl, opensInNewTab: opensInNewTab ?? false };
 }

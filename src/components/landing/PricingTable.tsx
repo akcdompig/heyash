@@ -1,7 +1,6 @@
 import { CREDIT_PACKAGES, formatPrice, pricePerMinute } from "@/lib/credits/packages";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { createPaymentAction } from "@/lib/actions/payments";
+import { PurchaseButton } from "@/components/buy/PurchaseButton";
 
 interface PricingTableProps {
   purchasable?: boolean;
@@ -30,15 +29,9 @@ export function PricingTable({ purchasable = false }: PricingTableProps) {
           <p className="mt-1 text-xs text-muted">{pricePerMinute(pkg)} / minuut</p>
 
           {purchasable && (
-            <form action={createPaymentAction.bind(null, pkg.code)} className="mt-6">
-              <Button
-                type="submit"
-                variant={pkg.popular ? "primary" : "secondary"}
-                className="w-full"
-              >
-                Kiezen
-              </Button>
-            </form>
+            <div className="mt-6">
+              <PurchaseButton packageCode={pkg.code} popular={pkg.popular} />
+            </div>
           )}
         </div>
       ))}

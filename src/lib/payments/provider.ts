@@ -10,6 +10,11 @@ export interface CreatePaymentInput {
 export interface CreatePaymentResult {
   providerPaymentId: string;
   redirectUrl: string;
+  /** Set by providers (e.g. Tikkie) whose hosted payment page never redirects
+   * the payer back to us — the caller should open `redirectUrl` in a new tab
+   * instead of navigating away, so the original tab keeps polling/listening
+   * for the payment to land. */
+  opensInNewTab?: boolean;
 }
 
 export type ProviderPaymentStatus = "PENDING" | "SUCCEEDED" | "FAILED";

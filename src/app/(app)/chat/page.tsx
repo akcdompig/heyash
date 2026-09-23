@@ -3,6 +3,7 @@ import { requireAgeConfirmed } from "@/lib/auth/dal";
 import { prisma } from "@/lib/db/prisma";
 import { SessionStatus } from "@prisma/client";
 import { startConversationAction } from "@/lib/actions/session";
+import { FREE_INTRO_MINUTES } from "@/lib/credits/packages";
 import { Button } from "@/components/ui/Button";
 import { AshleyAvatar } from "@/components/landing/AshleyAvatar";
 
@@ -41,7 +42,9 @@ export default async function ChatEntryPage({ searchParams }: PageProps<"/chat">
       ) : (
         <>
           <h1 className="font-display text-3xl">Zin om even te kletsen? 💛</h1>
-          <p className="max-w-sm text-muted">Je kunt eerst 2 minuten gratis met Ashley praten.</p>
+          <p className="max-w-sm text-muted">
+            Je kunt eerst {FREE_INTRO_MINUTES} minuten gratis met Ashley praten.
+          </p>
         </>
       )}
 

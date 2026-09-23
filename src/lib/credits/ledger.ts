@@ -1,6 +1,7 @@
 import "server-only";
 import { Prisma, TxType } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
+import { FREE_INTRO_MINUTES } from "@/lib/credits/packages";
 
 interface WriteLedgerEntryInput {
   userId: string;
@@ -87,7 +88,7 @@ export function grantFreeIntro(userId: string) {
   return writeLedgerEntry({
     userId,
     type: TxType.FREE_INTRO,
-    amountMinutes: 2,
+    amountMinutes: FREE_INTRO_MINUTES,
     idempotencyKey: `free-intro-${userId}`,
   });
 }

@@ -1,6 +1,12 @@
+import { FREE_INTRO_MINUTES } from "@/lib/credits/packages";
+
 const STEPS = [
   { n: "1", title: "Start", body: "Maak in een minuut een account aan — alleen je e-mailadres nodig." },
-  { n: "2", title: "Praat 2 minuten gratis", body: "Geen betaalgegevens vooraf. Gewoon meteen kletsen." },
+  {
+    n: "2",
+    title: `Praat ${FREE_INTRO_MINUTES} minuten gratis`,
+    body: "Geen betaalgegevens vooraf. Gewoon meteen kletsen.",
+  },
   { n: "3", title: "Koop extra gesprekstijd als je wilt", body: "Alleen als je door wilt praten. Jij bepaalt hoeveel." },
   { n: "4", title: "Praat zo lang als je nodig hebt", body: "Binnen je beschikbare tijd, zonder haast." },
 ];
